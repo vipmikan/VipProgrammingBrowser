@@ -13,64 +13,34 @@ import javax.swing.text.html.*;
 import javax.swing.text.html.parser.*;
 
 public class BoardList {
-
 	public MyParserCallback cb = new MyParserCallback();
 	public BoardList(){
 		URL url = null;
 		HttpURLConnection http_url_connection = null;
 		int response_code;
 		String response_message;
+		InputStreamReader in = null;
+		BufferedReader reader =null;
+		ParserDelegator pd =null;
 		try {
+			//httpでhtmlファイルを取得する一連の処理
 			url = new URL("http://menu.2ch.net/bbsmenu.html");
 			http_url_connection = (HttpURLConnection) url.openConnection();
 			http_url_connection.setRequestMethod("GET");
 			http_url_connection.setInstanceFollowRedirects(false);
 			http_url_connection.setRequestProperty("User-Agent", "Monazilla/1.00");
-		} catch (ProtocolException e1) {
-			e1.printStackTrace();
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		try {
 			response_code = http_url_connection.getResponseCode();
 			response_message = http_url_connection.getResponseMessage();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		InputStreamReader in = null;
-		try {
 			in = new InputStreamReader(http_url_connection.getInputStream(), "SJIS");
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		BufferedReader reader = new BufferedReader(in);
-		ParserDelegator pd = new ParserDelegator();
+			reader = new BufferedReader(in);
 
-		try {
+			pd = new ParserDelegator();
 			pd.parse(reader, cb, true);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		try {
 			in.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		try {
 			reader.close();
+			http_url_connection.disconnect();
 		} catch (IOException e1) {
 			e1.printStackTrace();
-		}
-		http_url_connection.disconnect();
-
-		for (Map.Entry<String, String> e : cb.getBoard_map().entrySet()) {
-			if (!e.getValue().equals(""))
-				System.out.print(e.getValue() +"  ");
-			System.out.println(e.getKey());
 		}
 	}
 	public Map<String,String> getBoard_list(){
@@ -78,6 +48,10 @@ public class BoardList {
 	}
 }
 
+/*
+ * 2ch.net/bbsmenu.htmlをパースしてMap<String, String> board_map に入れる
+ * 特定の板とカテゴリは無視する
+ */
 class MyParserCallback extends HTMLEditorKit.ParserCallback {
 	boolean start_bold = false;
 	boolean parse_2ch_start_flag = false;
@@ -90,6 +64,7 @@ class MyParserCallback extends HTMLEditorKit.ParserCallback {
 	LinkedHashMap<String, String> board_map = new LinkedHashMap<String, String>();
 
 	public MyParserCallback() {
+		//無視板(2ch標準の板じゃないやつら)
 		ignore_text.add("2ch検索");
 		ignore_text.add("be.2ch.net");
 		ignore_text.add("アンケート");
@@ -98,6 +73,7 @@ class MyParserCallback extends HTMLEditorKit.ParserCallback {
 		ignore_text.add("2ch観察帳");
 		ignore_text.add("2chメルマガ");
 
+		//無視カテゴリ
 		ignore_category.add("おすすめ");
 		ignore_category.add("チャット");
 		ignore_category.add("２ｃｈ＠ＩＲＣ");
@@ -112,18 +88,22 @@ class MyParserCallback extends HTMLEditorKit.ParserCallback {
 
 	@Override
 	public void handleStartTag(HTML.Tag tag, MutableAttributeSet attr, int pos) {
+		//<B>が出たら次の地の文はカテゴリ名。なのでフラグを立てる。
 		if (tag.equals(HTML.Tag.B)) {
 			start_bold = true;
 			start_category_flag = true;
 		}
+		//<A>タグが出たらurlを保持。あとで板名とペアにする。
 		if (tag.equals(HTML.Tag.A)) {
-			if (parse_2ch_start_flag == true) {
+			//頭についてる広告タグは無視。
+			if (parse_2ch_start_flag) {
 				String href = (String) attr.getAttribute(HTML.Attribute.HREF);
 				next_board_url = href;
 			}
 		}
 	}
 
+	//</B>タグ。次の地の文はカテゴリじゃないのでフラグを倒す。
 	@Override
 	public void handleEndTag(HTML.Tag tag, int pos) {
 		if (tag.equals(HTML.Tag.B)) {
@@ -131,8 +111,10 @@ class MyParserCallback extends HTMLEditorKit.ParserCallback {
 		}
 	}
 
+	//地の文。≈
 	public void handleText(char[] data, int pos) {
 		String text = new String(data);
+		 //カテゴリ名なら無視リストに入ってないかチェックしてからmapに追加。
 		if (start_bold) {
 			for (String s : ignore_category) {
 				if (text.equals(s)) {
@@ -144,8 +126,10 @@ class MyParserCallback extends HTMLEditorKit.ParserCallback {
 				board_category_name = text;
 				board_map.put(text,"c");
 			}
+		//パース作業の開始フラグ
 		} else if (text.equals(start_trigger_text)) {
 			parse_2ch_start_flag = true;
+		//カテゴリが無視リストに入ってないなら(板名,URL)をmapに登録
 		} else if (parse_2ch_start_flag && start_category_flag) {
 			Pattern pattern = Pattern.compile(".*\\.2ch\\.net/.*");
 			Matcher matcher = pattern.matcher(next_board_url);

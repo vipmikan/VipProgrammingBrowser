@@ -98,7 +98,6 @@ public class FTest extends JFrame {
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//2ch.netから取得する
 				addBoardList();
 			}
 
