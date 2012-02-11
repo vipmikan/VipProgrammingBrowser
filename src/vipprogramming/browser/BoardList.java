@@ -12,6 +12,9 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.text.html.parser.*;
 
+/*
+ *板一覧取得するクラス
+ */
 public class BoardList {
 	public MyParserCallback cb = new MyParserCallback();
 	public BoardList(){
