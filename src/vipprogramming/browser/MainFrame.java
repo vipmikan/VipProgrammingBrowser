@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -99,7 +100,7 @@ public class MainFrame extends JFrame {
 	//
 	private String thread_url = null;
 
-	public MainFrame() {
+	public MainFrame(){
 		// 閉じるで終了
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// 四隅の位置を指定
@@ -192,10 +193,10 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-
+		htmlPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+		htmlPane.setFont(new Font("SansSerif",0,12));
 		htmlPane.setEditable(false);
 		htmlPane.setContentType("text/html");
-		htmlPane.setText("<b>thread view</b>");
 
 		// scrollPane_3.setViewportView(textPane);
 
@@ -273,40 +274,29 @@ public class MainFrame extends JFrame {
 
 	private void addThread(ArrayList<String> r_al) {
 		int thread_cnt = 1;
-		String name;
-		String mail;
-		String date;
-		String content;
-		String title;
-		StringBuffer sBuffer = new StringBuffer();
+		StringBuffer sb = new StringBuffer();
 		for (String r : r_al) {
-			Pattern thread_pattern = Pattern.compile("^(.*)<>(.*)<>(.*)<>(.*)<>(.*)$");
-			Matcher thread_matcher = thread_pattern.matcher(r);
-			if (thread_matcher.find()) {
-				name = thread_matcher.group(1);
-				mail = thread_matcher.group(2);
-				date = thread_matcher.group(3);
-				content = thread_matcher.group(4);
-				title = thread_matcher.group(5);
-				sBuffer.append(title);
-				sBuffer.append("<br>");
-				sBuffer.append("<font color=blue>");
-				sBuffer.append(thread_cnt);
-				sBuffer.append("</font>");
-				sBuffer.append("<font color=green>");
-				sBuffer.append(name);
-				sBuffer.append("</font>");
-				sBuffer.append("[");
-				sBuffer.append(mail);
-				sBuffer.append("]");
-				sBuffer.append(date);
-				sBuffer.append("<br>");
-				sBuffer.append(content);
-				sBuffer.append("<br><br>");
+			String[] r_ary = r.split("<>");
+			if(r_ary.length > 4){
+				sb.append(r_ary[4]);
+				sb.append("<br>");
 			}
+			sb.append("<font color=blue>");
+			sb.append(thread_cnt);
+			sb.append("</font>");
+			sb.append("<font color=green>");
+			sb.append(r_ary[0]);
+			sb.append("</font>");
+			sb.append("[");
+			sb.append(r_ary[1]);
+			sb.append("]");
+			sb.append(r_ary[2]);
+			sb.append("<br>");
+			sb.append(r_ary[3]);
+			sb.append("<br><br>");
 			thread_cnt++;
 		}
-		htmlPane.setText(sBuffer.toString());
+		htmlPane.setText(sb.toString());
 	}
 
 	private void addThreadListArrayToTable(ArrayList<String> tl) {

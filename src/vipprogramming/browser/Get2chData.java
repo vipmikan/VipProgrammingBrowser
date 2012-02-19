@@ -19,10 +19,11 @@ public class Get2chData {
 	public MenuParserCallback menu_cb = new MenuParserCallback();
 	private ArrayList<String> thread_array = new ArrayList<String>();
 	private ArrayList<String> res_array = new ArrayList<String>();
+
 	public void getMenu() {
 		HttpURLConnection http_url_connection = null;
-//		int response_code;
-//		String response_message;
+		// int response_code;
+		// String response_message;
 		InputStreamReader in = null;
 		BufferedReader reader = null;
 		ParserDelegator pd = null;
@@ -33,8 +34,8 @@ public class Get2chData {
 			http_url_connection.setRequestMethod("GET");
 			http_url_connection.setInstanceFollowRedirects(false);
 			http_url_connection.setRequestProperty("User-Agent", "Monazilla/1.00");
-//			response_code = http_url_connection.getResponseCode();
-//			response_message = http_url_connection.getResponseMessage();
+			// response_code = http_url_connection.getResponseCode();
+			// response_message = http_url_connection.getResponseMessage();
 			in = new InputStreamReader(http_url_connection.getInputStream(), "SJIS");
 			reader = new BufferedReader(in);
 
@@ -54,11 +55,11 @@ public class Get2chData {
 
 	public void getThreadList(URL url) {
 		HttpURLConnection http_url_connection = null;
-//		int response_code;
-//		String response_message;
+		// int response_code;
+		// String response_message;
 		InputStreamReader in = null;
 		BufferedReader reader = null;
-//		ParserDelegator pd = null;
+		// ParserDelegator pd = null;
 
 		thread_array.clear();
 		try {
@@ -67,16 +68,15 @@ public class Get2chData {
 			http_url_connection.setRequestMethod("GET");
 			http_url_connection.setInstanceFollowRedirects(false);
 			http_url_connection.setRequestProperty("User-Agent", "Monazilla/1.00");
-//			response_code = http_url_connection.getResponseCode();
-//			response_message = http_url_connection.getResponseMessage();
+			// response_code = http_url_connection.getResponseCode();
+			// response_message = http_url_connection.getResponseMessage();
 			in = new InputStreamReader(http_url_connection.getInputStream(), "SJIS");
 			reader = new BufferedReader(in);
 			String str = reader.readLine();
-			  while(str != null){
-			    System.out.println(str);
-			    thread_array.add(str);
-			    str = reader.readLine();
-			  }
+			while (str != null) {
+				thread_array.add(str);
+				str = reader.readLine();
+			}
 			in.close();
 			reader.close();
 			http_url_connection.disconnect();
@@ -96,11 +96,11 @@ public class Get2chData {
 	public void getThread(URL thread_url) {
 
 		HttpURLConnection http_url_connection = null;
-//		int response_code;
-//		String response_message;
+		// int response_code;
+		// String response_message;
 		InputStreamReader in = null;
 		BufferedReader reader = null;
-//		ParserDelegator pd = null;
+		// ParserDelegator pd = null;
 
 		res_array.clear();
 		try {
@@ -109,16 +109,15 @@ public class Get2chData {
 			http_url_connection.setRequestMethod("GET");
 			http_url_connection.setInstanceFollowRedirects(false);
 			http_url_connection.setRequestProperty("User-Agent", "Monazilla/1.00");
-//			response_code = http_url_connection.getResponseCode();
-//			response_message = http_url_connection.getResponseMessage();
+			// response_code = http_url_connection.getResponseCode();
+			// response_message = http_url_connection.getResponseMessage();
 			in = new InputStreamReader(http_url_connection.getInputStream(), "SJIS");
 			reader = new BufferedReader(in);
 			String str = reader.readLine();
-			  while(str != null){
-			    System.out.println(str);
-			    res_array.add(str);
-			    str = reader.readLine();
-			  }
+			while (str != null){
+				res_array.add(str);
+				str = reader.readLine();
+			}
 			in.close();
 			reader.close();
 			http_url_connection.disconnect();
